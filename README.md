@@ -1,19 +1,8 @@
-# Bé Tô Màu Pro Fixed
+# Bé Tô Màu - Working Build
 
-Bản này đã sửa lỗi không tô được trên điện thoại/iPad.
+Bản này sửa lại kiến trúc:
+- `paintCanvas`: lớp tô màu, nhận sự kiện chuột/cảm ứng.
+- `lineCanvas`: lớp nét vẽ phía trên, không nhận sự kiện.
+- Vì vậy màu sẽ hiện rõ và nét tranh không bị che.
 
-## Cách dùng
-- Mở `index.html` hoặc deploy lên Vercel.
-- Chọn màu.
-- Chọn Cọ rồi chạm/kéo trên tranh để tô.
-- Gôm để xóa.
-- Đổ màu để tô vùng kín.
-- Upload ảnh rồi bấm Nét chì để tạo tranh tô màu.
-
-## Deploy Vercel
-Kéo thả thư mục lên Vercel hoặc chạy:
-
-```bash
-npm i -g vercel
-vercel --prod
-```
+Deploy Vercel: kéo thả thư mục hoặc chạy `vercel --prod`.
