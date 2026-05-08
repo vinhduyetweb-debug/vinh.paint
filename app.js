@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const lctx = lineCanvas.getContext("2d", { willReadFrequently: true });
 
   const palette = document.getElementById("palette");
+  const sampleStrip = document.getElementById("sampleStrip");
   const imageInput = document.getElementById("imageInput");
-  const sampleBtn = document.getElementById("sampleBtn");
   const lineBtn = document.getElementById("lineBtn");
   const saveBtn = document.getElementById("saveBtn");
   const brushBtn = document.getElementById("brushBtn");
@@ -25,8 +25,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let cleanPaint = null;
   let cleanLine = null;
   let undoStack = [];
+  let currentSample = "cat";
 
   const colors = ["#ff3b30","#ff9500","#ffcc00","#34c759","#00c7be","#007aff","#5856d6","#af52de","#ff2d55","#8e5a2a","#111111","#ffffff"];
+  const samples = [
+    ["cat","🐱 Mèo"],["dog","🐶 Chó"],["rabbit","🐰 Thỏ"],["fish","🐟 Cá"],["bird","🐦 Chim"],
+    ["butterfly","🦋 Bướm"],["elephant","🐘 Voi"],["lion","🦁 Sư tử"],["turtle","🐢 Rùa"],["bear","🐻 Gấu"]
+  ];
 
   function msg(t){ toast.textContent = t; }
 
@@ -42,9 +47,24 @@ document.addEventListener("DOMContentLoaded", () => {
         updateToolButtons();
         document.querySelectorAll(".colorDot").forEach(x=>x.classList.remove("active"));
         b.classList.add("active");
-        msg("Đang dùng cọ màu");
       };
       palette.appendChild(b);
+    });
+  }
+
+  function setupSamples(){
+    samples.forEach(([id,label])=>{
+      const b=document.createElement("button");
+      b.className="sampleBtn"+(id===currentSample?" active":"");
+      b.textContent=label;
+      b.type="button";
+      b.onclick=()=>{
+        currentSample=id;
+        document.querySelectorAll(".sampleBtn").forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+        drawSample(id);
+      };
+      sampleStrip.appendChild(b);
     });
   }
 
@@ -59,8 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
     paintCanvas.width = lineCanvas.width = w;
     paintCanvas.height = lineCanvas.height = h;
 
-    pctx.fillStyle = "white";
-    pctx.fillRect(0,0,w,h);
+    clearPaint();
+    clearLine();
 
     if (oldPaint && oldLine) {
       const ip = new Image();
@@ -70,56 +90,76 @@ document.addEventListener("DOMContentLoaded", () => {
       ip.src=oldPaint;
       il.src=oldLine;
     } else {
-      drawSample();
+      drawSample(currentSample);
     }
   }
 
-  function clearPaint(){
-    pctx.fillStyle="white";
-    pctx.fillRect(0,0,paintCanvas.width,paintCanvas.height);
-  }
+  function clearPaint(){ pctx.fillStyle="white"; pctx.fillRect(0,0,paintCanvas.width,paintCanvas.height); }
+  function clearLine(){ lctx.clearRect(0,0,lineCanvas.width,lineCanvas.height); }
 
-  function clearLine(){
-    lctx.clearRect(0,0,lineCanvas.width,lineCanvas.height);
-  }
-
-  function drawSample(){
-    clearPaint();
-    clearLine();
-    const w=lineCanvas.width,h=lineCanvas.height,s=Math.min(w,h);
+  function lineSetup(){
+    const s=Math.min(lineCanvas.width,lineCanvas.height);
     lctx.strokeStyle="#111";
     lctx.lineWidth=Math.max(7,s*0.014);
     lctx.lineCap="round";
     lctx.lineJoin="round";
+  }
 
-    lctx.beginPath();
-    lctx.arc(w*.5,h*.42,s*.18,0,Math.PI*2);
-    lctx.stroke();
+  function drawSample(id){
+    clearPaint(); clearLine(); lineSetup();
+    const w=lineCanvas.width,h=lineCanvas.height,s=Math.min(w,h), cx=w*.5, cy=h*.48;
+    const arc=(x,y,r,a,b)=>{lctx.beginPath();lctx.arc(x,y,r,a,b);lctx.stroke();};
+    const ellipse=(x,y,rx,ry)=>{lctx.beginPath();lctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);lctx.stroke();};
+    const line=(...pts)=>{lctx.beginPath();lctx.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)lctx.lineTo(pts[i],pts[i+1]);lctx.stroke();};
 
-    lctx.beginPath();
-    lctx.moveTo(w*.38,h*.34); lctx.lineTo(w*.30,h*.20); lctx.lineTo(w*.46,h*.29);
-    lctx.moveTo(w*.62,h*.34); lctx.lineTo(w*.70,h*.20); lctx.lineTo(w*.54,h*.29);
-    lctx.stroke();
-
-    lctx.beginPath();
-    lctx.arc(w*.43,h*.40,s*.018,0,Math.PI*2);
-    lctx.arc(w*.57,h*.40,s*.018,0,Math.PI*2);
-    lctx.stroke();
-
-    lctx.beginPath();
-    lctx.arc(w*.5,h*.49,s*.065,0,Math.PI);
-    lctx.stroke();
-
-    lctx.beginPath();
-    lctx.moveTo(w*.35,h*.43); lctx.lineTo(w*.20,h*.38);
-    lctx.moveTo(w*.35,h*.47); lctx.lineTo(w*.18,h*.47);
-    lctx.moveTo(w*.65,h*.43); lctx.lineTo(w*.80,h*.38);
-    lctx.moveTo(w*.65,h*.47); lctx.lineTo(w*.82,h*.47);
-    lctx.stroke();
+    if(id==="cat"){
+      arc(cx,cy-s*.04,s*.18,0,Math.PI*2);
+      line(cx-s*.12,cy-s*.16,cx-s*.22,cy-s*.34,cx-s*.03,cy-s*.21);
+      line(cx+s*.12,cy-s*.16,cx+s*.22,cy-s*.34,cx+s*.03,cy-s*.21);
+      arc(cx-s*.06,cy-s*.07,s*.018,0,Math.PI*2); arc(cx+s*.06,cy-s*.07,s*.018,0,Math.PI*2);
+      arc(cx,cy+s*.02,s*.06,0,Math.PI); line(cx-s*.15,cy,cx-s*.32,cy-s*.04); line(cx+s*.15,cy,cx+s*.32,cy-s*.04);
+    } else if(id==="dog"){
+      ellipse(cx,cy,s*.20,s*.17); ellipse(cx-s*.18,cy-s*.03,s*.07,s*.14); ellipse(cx+s*.18,cy-s*.03,s*.07,s*.14);
+      arc(cx-s*.07,cy-s*.04,s*.018,0,Math.PI*2); arc(cx+s*.07,cy-s*.04,s*.018,0,Math.PI*2);
+      arc(cx,cy+s*.04,s*.07,0,Math.PI); ellipse(cx,cy+s*.01,s*.035,s*.025);
+    } else if(id==="rabbit"){
+      ellipse(cx,cy+s*.02,s*.18,s*.15); ellipse(cx-s*.08,cy-s*.25,s*.055,s*.20); ellipse(cx+s*.08,cy-s*.25,s*.055,s*.20);
+      arc(cx-s*.06,cy-s*.04,s*.018,0,Math.PI*2); arc(cx+s*.06,cy-s*.04,s*.018,0,Math.PI*2);
+      arc(cx,cy+s*.05,s*.055,0,Math.PI); line(cx,cy+s*.01,cx,cy+s*.05);
+    } else if(id==="fish"){
+      ellipse(cx-s*.03,cy,s*.22,s*.13); line(cx+s*.18,cy,cx+s*.35,cy-s*.13,cx+s*.35,cy+s*.13,cx+s*.18,cy);
+      arc(cx-s*.12,cy-s*.03,s*.018,0,Math.PI*2); line(cx-s*.01,cy-s*.12,cx+s*.05,cy-s*.25,cx+s*.10,cy-s*.11);
+    } else if(id==="bird"){
+      ellipse(cx,cy,s*.17,s*.13); arc(cx+s*.13,cy-s*.12,s*.10,0,Math.PI*2);
+      line(cx+s*.22,cy-s*.12,cx+s*.34,cy-s*.07,cx+s*.22,cy-s*.02);
+      arc(cx+s*.16,cy-s*.14,s*.015,0,Math.PI*2); line(cx-s*.02,cy+s*.12,cx-s*.06,cy+s*.23); line(cx+s*.04,cy+s*.12,cx+s*.08,cy+s*.23);
+    } else if(id==="butterfly"){
+      ellipse(cx-s*.12,cy-s*.06,s*.12,s*.17); ellipse(cx+s*.12,cy-s*.06,s*.12,s*.17);
+      ellipse(cx-s*.10,cy+s*.12,s*.10,s*.12); ellipse(cx+s*.10,cy+s*.12,s*.10,s*.12);
+      ellipse(cx,cy,s*.035,s*.22); line(cx,cy-s*.19,cx-s*.09,cy-s*.30); line(cx,cy-s*.19,cx+s*.09,cy-s*.30);
+    } else if(id==="elephant"){
+      ellipse(cx,cy,s*.24,s*.17); arc(cx-s*.10,cy-s*.04,s*.018,0,Math.PI*2); arc(cx+s*.10,cy-s*.04,s*.018,0,Math.PI*2);
+      lctx.beginPath(); lctx.moveTo(cx,cy); lctx.quadraticCurveTo(cx+s*.03,cy+s*.16,cx-s*.02,cy+s*.26); lctx.stroke();
+      ellipse(cx-s*.23,cy-s*.01,s*.09,s*.13); ellipse(cx+s*.23,cy-s*.01,s*.09,s*.13);
+    } else if(id==="lion"){
+      arc(cx,cy,s*.21,0,Math.PI*2); arc(cx,cy,s*.14,0,Math.PI*2);
+      arc(cx-s*.05,cy-s*.03,s*.015,0,Math.PI*2); arc(cx+s*.05,cy-s*.03,s*.015,0,Math.PI*2);
+      arc(cx,cy+s*.04,s*.055,0,Math.PI); ellipse(cx,cy+s*.01,s*.025,s*.018);
+      for(let a=0;a<Math.PI*2;a+=Math.PI/8){line(cx+Math.cos(a)*s*.21,cy+Math.sin(a)*s*.21,cx+Math.cos(a)*s*.28,cy+Math.sin(a)*s*.28);}
+    } else if(id==="turtle"){
+      ellipse(cx,cy,s*.23,s*.16); arc(cx+s*.25,cy-s*.02,s*.07,0,Math.PI*2);
+      arc(cx+s*.28,cy-s*.04,s*.012,0,Math.PI*2);
+      arc(cx-s*.17,cy+s*.13,s*.05,0,Math.PI*2); arc(cx+s*.03,cy+s*.14,s*.05,0,Math.PI*2);
+      line(cx-s*.12,cy-s*.12,cx+s*.12,cy+s*.12); line(cx+s*.12,cy-s*.12,cx-s*.12,cy+s*.12);
+    } else if(id==="bear"){
+      arc(cx,cy,s*.18,0,Math.PI*2); arc(cx-s*.13,cy-s*.15,s*.07,0,Math.PI*2); arc(cx+s*.13,cy-s*.15,s*.07,0,Math.PI*2);
+      arc(cx-s*.06,cy-s*.04,s*.016,0,Math.PI*2); arc(cx+s*.06,cy-s*.04,s*.016,0,Math.PI*2);
+      ellipse(cx,cy+s*.04,s*.07,s*.055); arc(cx,cy+s*.06,s*.04,0,Math.PI);
+    }
 
     saveClean();
     undoStack = [paintCanvas.toDataURL("image/png")];
-    msg("Mẫu đã sẵn sàng. Kéo trên hình để tô.");
+    msg("Đã chọn mẫu: " + samples.find(x=>x[0]===id)[1]);
   }
 
   function saveClean(){
@@ -134,10 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function restorePaint(url){
     const img = new Image();
-    img.onload=()=>{
-      clearPaint();
-      pctx.drawImage(img,0,0,paintCanvas.width,paintCanvas.height);
-    };
+    img.onload=()=>{ clearPaint(); pctx.drawImage(img,0,0,paintCanvas.width,paintCanvas.height); };
     img.src=url;
   }
 
@@ -200,8 +237,8 @@ document.addEventListener("DOMContentLoaded", () => {
     eraserBtn.classList.toggle("active", tool==="eraser");
   }
 
-  brushBtn.onclick=()=>{tool="brush";updateToolButtons();msg("Đang dùng cọ");};
-  eraserBtn.onclick=()=>{tool="eraser";updateToolButtons();msg("Đang dùng gôm");};
+  brushBtn.onclick=()=>{tool="brush";updateToolButtons();};
+  eraserBtn.onclick=()=>{tool="eraser";updateToolButtons();};
 
   undoBtn.onclick=()=>{
     if(undoStack.length<2) return;
@@ -209,23 +246,17 @@ document.addEventListener("DOMContentLoaded", () => {
     restorePaint(undoStack[undoStack.length-1]);
   };
 
-  resetBtn.onclick=()=>{
-    if(cleanPaint) restorePaint(cleanPaint);
-  };
-
-  sampleBtn.onclick=drawSample;
+  resetBtn.onclick=()=>{ if(cleanPaint) restorePaint(cleanPaint); };
 
   function createLineArt(){
     if(!originalImage){ msg("Hãy upload ảnh trước"); return; }
-    clearPaint();
-    clearLine();
+    clearPaint(); clearLine();
 
     const w=lineCanvas.width,h=lineCanvas.height;
     const tmp=document.createElement("canvas");
     tmp.width=w; tmp.height=h;
     const t=tmp.getContext("2d",{willReadFrequently:true});
-    t.fillStyle="#fff";
-    t.fillRect(0,0,w,h);
+    t.fillStyle="#fff"; t.fillRect(0,0,w,h);
 
     const scale=Math.min(w/originalImage.width,h/originalImage.height);
     const iw=originalImage.width*scale, ih=originalImage.height*scale;
@@ -257,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lctx.putImageData(out,0,0);
     saveClean();
     undoStack=[paintCanvas.toDataURL("image/png")];
-    msg("Đã tạo nét chì. Kéo trên ảnh để tô.");
+    msg("Đã tạo nét chì.");
   }
 
   imageInput.onchange=(e)=>{
@@ -287,11 +318,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("resize",()=>{clearTimeout(window.__r); window.__r=setTimeout(resize,200);});
 
-  if("serviceWorker" in navigator){
-    window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-  }
-
   setupPalette();
+  setupSamples();
   resize();
   updateToolButtons();
 });

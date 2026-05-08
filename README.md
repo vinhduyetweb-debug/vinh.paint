@@ -1,8 +1,10 @@
-# Bé Tô Màu - Working Build
+# Bé Tô Màu Animals V2
 
-Bản này sửa lại kiến trúc:
-- `paintCanvas`: lớp tô màu, nhận sự kiện chuột/cảm ứng.
-- `lineCanvas`: lớp nét vẽ phía trên, không nhận sự kiện.
-- Vì vậy màu sẽ hiện rõ và nét tranh không bị che.
+## Cập nhật
+- Bỏ service worker để tránh lỗi phải Ctrl+Shift+R mới thấy bản mới.
+- Thêm 10 mẫu động vật: mèo, chó, thỏ, cá, chim, bướm, voi, sư tử, rùa, gấu.
+- Thu nhỏ khu vực chọn màu và toolbar để tăng diện tích tô màu.
+- CSS/JS có `?v=2` để giảm cache trình duyệt.
 
-Deploy Vercel: kéo thả thư mục hoặc chạy `vercel --prod`.
+## Deploy Vercel
+Kéo thả thư mục này lên Vercel. Không cần build.
