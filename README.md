@@ -1,31 +1,19 @@
-# Bé Tô Màu Pro - HTML Static PWA
+# Bé Tô Màu Pro Fixed
 
-## Có gì trong bản Pro
+Bản này đã sửa lỗi không tô được trên điện thoại/iPad.
 
-- Giao diện mobile/iPad đẹp hơn
-- Cọ tô màu
-- Gôm
-- Đổ màu bucket fill
-- Undo / Redo
-- Reset về tranh chưa tô
-- Upload ảnh từ điện thoại/iPad
-- Chuyển ảnh thành tranh nét chì
-- Điều chỉnh độ nét ảnh
-- Lưu PNG
-- Chia sẻ ảnh nếu trình duyệt hỗ trợ
-- Fullscreen
-- PWA / Add to Home Screen
-- Deploy Vercel không cần build
+## Cách dùng
+- Mở `index.html` hoặc deploy lên Vercel.
+- Chọn màu.
+- Chọn Cọ rồi chạm/kéo trên tranh để tô.
+- Gôm để xóa.
+- Đổ màu để tô vùng kín.
+- Upload ảnh rồi bấm Nét chì để tạo tranh tô màu.
 
 ## Deploy Vercel
-
-Giải nén file zip rồi kéo thả thư mục lên Vercel.
-
-Hoặc:
+Kéo thả thư mục lên Vercel hoặc chạy:
 
 ```bash
 npm i -g vercel
 vercel --prod
 ```
-
-Không cần build.

@@ -16,58 +16,78 @@ const shareBtn = document.getElementById("shareBtn");
 const lineBtn = document.getElementById("lineBtn");
 const sampleBtn = document.getElementById("sampleBtn");
 const fullscreenBtn = document.getElementById("fullscreenBtn");
-
 const sizeRange = document.getElementById("sizeRange");
 const edgeRange = document.getElementById("edgeRange");
 
 let color = "#ff3b30";
 let tool = "brush";
-let drawing = false;
+let isDrawing = false;
 let last = { x: 0, y: 0 };
 let baseImage = null;
-let lineImage = null;
+let cleanLineState = null;
 let undoStack = [];
 let redoStack = [];
 
-const colors = [
-  "#ff3b30","#ff9500","#ffcc00","#34c759","#00c7be","#007aff",
-  "#5856d6","#af52de","#ff2d55","#8e5a2a","#000000","#ffffff",
-  "#f7b7d2","#b8e986","#7ed6ff","#f5e6ca"
-];
+const colors = ["#ff3b30","#ff9500","#ffcc00","#34c759","#00c7be","#007aff","#5856d6","#af52de","#ff2d55","#8e5a2a","#000000","#ffffff","#f7b7d2","#b8e986","#7ed6ff","#f5e6ca"];
 
 function toast(msg) {
   toastEl.textContent = msg;
   toastEl.classList.add("show");
   clearTimeout(toast.timer);
-  toast.timer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+  toast.timer = setTimeout(() => toastEl.classList.remove("show"), 1600);
 }
 
-function resizeCanvas() {
-  const old = canvas.toDataURL("image/png");
-  const r = canvas.parentElement.getBoundingClientRect();
+function setupPalette() {
+  colors.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "colorDot" + (i === 0 ? " active" : "");
+    b.style.background = c;
+    b.addEventListener("click", () => {
+      color = c;
+      setTool("brush");
+      document.querySelectorAll(".colorDot").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+    });
+    palette.appendChild(b);
+  });
+}
+
+function setTool(next) {
+  tool = next;
+  brushBtn.classList.toggle("active", tool === "brush");
+  eraserBtn.classList.toggle("active", tool === "eraser");
+  bucketBtn.classList.toggle("active", tool === "bucket");
+}
+
+function fitCanvas() {
+  const current = canvas.width > 0 ? canvas.toDataURL("image/png") : null;
+  const rect = canvas.parentElement.getBoundingClientRect();
   const ratio = window.devicePixelRatio || 1;
-  canvas.width = Math.max(300, Math.floor(r.width * ratio));
-  canvas.height = Math.max(300, Math.floor(r.height * ratio));
+  canvas.width = Math.max(320, Math.floor(rect.width * ratio));
+  canvas.height = Math.max(320, Math.floor(rect.height * ratio));
 
-  const img = new Image();
-  img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  img.onerror = drawSample;
-  img.src = old;
+  if (current) {
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    img.src = current;
+  } else {
+    drawSample();
+  }
 }
 
-function whiteBackground() {
+function white() {
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawSample() {
-  whiteBackground();
+  white();
+  const w = canvas.width, h = canvas.height, s = Math.min(w, h);
   ctx.strokeStyle = "#111";
-  ctx.lineWidth = 8 * (window.devicePixelRatio || 1);
+  ctx.lineWidth = Math.max(5, s * 0.012);
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-
-  const w = canvas.width, h = canvas.height, s = Math.min(w, h);
 
   ctx.beginPath();
   ctx.arc(w*.5, h*.42, s*.18, 0, Math.PI*2);
@@ -94,114 +114,140 @@ function drawSample() {
   ctx.moveTo(w*.65,h*.47); ctx.lineTo(w*.82,h*.47);
   ctx.stroke();
 
-  lineImage = canvas.toDataURL("image/png");
-  pushUndo();
-  toast("Đã mở mẫu mèo.");
+  cleanLineState = canvas.toDataURL("image/png");
+  undoStack = [cleanLineState];
+  redoStack = [];
 }
 
 function pushUndo() {
   undoStack.push(canvas.toDataURL("image/png"));
-  if (undoStack.length > 30) undoStack.shift();
+  if (undoStack.length > 40) undoStack.shift();
   redoStack = [];
 }
 
-function restore(dataUrl) {
+function restore(src) {
   const img = new Image();
   img.onload = () => {
-    whiteBackground();
+    white();
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   };
-  img.src = dataUrl;
+  img.src = src;
 }
 
-function getPos(e) {
-  const r = canvas.getBoundingClientRect();
+function getPoint(e) {
+  const rect = canvas.getBoundingClientRect();
   const p = e.touches ? e.touches[0] : e;
   return {
-    x: (p.clientX - r.left) * (canvas.width / r.width),
-    y: (p.clientY - r.top) * (canvas.height / r.height)
+    x: (p.clientX - rect.left) * (canvas.width / rect.width),
+    y: (p.clientY - rect.top) * (canvas.height / rect.height)
   };
 }
 
-function setTool(next) {
-  tool = next;
-  brushBtn.classList.toggle("active", tool === "brush");
-  eraserBtn.classList.toggle("active", tool === "eraser");
-  bucketBtn.classList.toggle("active", tool === "bucket");
+function drawDot(p) {
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, (Number(sizeRange.value) * (window.devicePixelRatio || 1)) / 2, 0, Math.PI * 2);
+  ctx.fillStyle = tool === "eraser" ? "#fff" : color;
+  ctx.fill();
 }
 
-function drawLine(to) {
+function drawStroke(p) {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.lineWidth = Number(sizeRange.value) * (window.devicePixelRatio || 1);
-
-  if (tool === "eraser") {
-    ctx.strokeStyle = "#ffffff";
-  } else {
-    ctx.strokeStyle = color;
-  }
+  ctx.strokeStyle = tool === "eraser" ? "#fff" : color;
 
   ctx.beginPath();
   ctx.moveTo(last.x, last.y);
-  ctx.lineTo(to.x, to.y);
+  ctx.lineTo(p.x, p.y);
   ctx.stroke();
-
-  last = to;
+  last = p;
 }
 
 function hexToRgb(hex) {
   const v = hex.replace("#", "");
-  return [
-    parseInt(v.slice(0,2),16),
-    parseInt(v.slice(2,4),16),
-    parseInt(v.slice(4,6),16),
-    255
-  ];
+  return [parseInt(v.slice(0,2),16), parseInt(v.slice(2,4),16), parseInt(v.slice(4,6),16), 255];
 }
 
-function colorDistance(data, i, target) {
-  return Math.abs(data[i]-target[0]) + Math.abs(data[i+1]-target[1]) + Math.abs(data[i+2]-target[2]);
+function dist(data, i, c) {
+  return Math.abs(data[i]-c[0]) + Math.abs(data[i+1]-c[1]) + Math.abs(data[i+2]-c[2]);
 }
 
-function floodFill(x, y) {
-  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = img.data;
-  const w = canvas.width, h = canvas.height;
+function bucketFill(x, y) {
   x = Math.floor(x); y = Math.floor(y);
+  const w = canvas.width, h = canvas.height;
   if (x < 0 || y < 0 || x >= w || y >= h) return;
 
+  const img = ctx.getImageData(0,0,w,h);
+  const data = img.data;
   const start = (y*w+x)*4;
-  const target = [data[start], data[start+1], data[start+2], data[start+3]];
+  const target = [data[start], data[start+1], data[start+2], 255];
   const fill = hexToRgb(color);
-  const tolerance = 42;
+  const tolerance = 55;
 
-  if (colorDistance(data, start, fill) < 8) return;
+  if (dist(data, start, fill) < 10) return;
 
   const stack = [[x,y]];
-  const visited = new Uint8Array(w*h);
-  let count = 0;
-  const max = w*h;
+  const seen = new Uint8Array(w*h);
 
-  while (stack.length && count < max) {
-    const [cx,cy] = stack.pop();
+  while (stack.length) {
+    const [cx, cy] = stack.pop();
     if (cx < 0 || cy < 0 || cx >= w || cy >= h) continue;
     const idx = cy*w + cx;
-    if (visited[idx]) continue;
-    visited[idx] = 1;
+    if (seen[idx]) continue;
+    seen[idx] = 1;
 
-    const di = idx*4;
-    const isBlackLine = data[di] < 70 && data[di+1] < 70 && data[di+2] < 70;
-    if (isBlackLine) continue;
-    if (colorDistance(data, di, target) > tolerance) continue;
+    const i = idx*4;
+    const blackLine = data[i] < 80 && data[i+1] < 80 && data[i+2] < 80;
+    if (blackLine) continue;
+    if (dist(data, i, target) > tolerance) continue;
 
-    data[di] = fill[0]; data[di+1] = fill[1]; data[di+2] = fill[2]; data[di+3] = 255;
-    count++;
-
+    data[i]=fill[0]; data[i+1]=fill[1]; data[i+2]=fill[2]; data[i+3]=255;
     stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
   }
 
-  ctx.putImageData(img, 0, 0);
+  ctx.putImageData(img,0,0);
 }
+
+function start(e) {
+  e.preventDefault();
+  const p = getPoint(e);
+
+  if (tool === "bucket") {
+    pushUndo();
+    bucketFill(p.x, p.y);
+    return;
+  }
+
+  isDrawing = true;
+  last = p;
+  pushUndo();
+  drawDot(p);
+}
+
+function move(e) {
+  if (!isDrawing) return;
+  e.preventDefault();
+  drawStroke(getPoint(e));
+}
+
+function end(e) {
+  if (!isDrawing) return;
+  e && e.preventDefault && e.preventDefault();
+  isDrawing = false;
+}
+
+canvas.addEventListener("pointerdown", start, { passive:false });
+canvas.addEventListener("pointermove", move, { passive:false });
+window.addEventListener("pointerup", end, { passive:false });
+window.addEventListener("pointercancel", end, { passive:false });
+
+canvas.addEventListener("touchstart", start, { passive:false });
+canvas.addEventListener("touchmove", move, { passive:false });
+window.addEventListener("touchend", end, { passive:false });
+
+canvas.addEventListener("mousedown", start);
+canvas.addEventListener("mousemove", move);
+window.addEventListener("mouseup", end);
 
 function makeLineArt() {
   if (!baseImage) {
@@ -209,97 +255,63 @@ function makeLineArt() {
     return;
   }
 
-  whiteBackground();
-
   const w = canvas.width, h = canvas.height;
-  const temp = document.createElement("canvas");
-  temp.width = w; temp.height = h;
-  const t = temp.getContext("2d", { willReadFrequently: true });
+  const tmp = document.createElement("canvas");
+  tmp.width = w; tmp.height = h;
+  const t = tmp.getContext("2d", { willReadFrequently:true });
 
   t.fillStyle = "#fff";
-  t.fillRect(0, 0, w, h);
+  t.fillRect(0,0,w,h);
 
-  const scale = Math.min(w / baseImage.width, h / baseImage.height);
-  const iw = baseImage.width * scale;
-  const ih = baseImage.height * scale;
-  const ix = (w - iw) / 2;
-  const iy = (h - ih) / 2;
+  const scale = Math.min(w/baseImage.width, h/baseImage.height);
+  const iw = baseImage.width*scale, ih = baseImage.height*scale;
+  t.drawImage(baseImage, (w-iw)/2, (h-ih)/2, iw, ih);
 
-  t.drawImage(baseImage, ix, iy, iw, ih);
-
-  const srcImg = t.getImageData(0, 0, w, h);
+  const srcImg = t.getImageData(0,0,w,h);
   const src = srcImg.data;
-  const out = t.createImageData(w, h);
+  const out = t.createImageData(w,h);
   const dst = out.data;
-  const threshold = Number(edgeRange.value);
+  const th = Number(edgeRange.value);
 
-  function gray(x, y) {
+  function gray(x,y) {
     const i = (y*w+x)*4;
     return src[i]*.299 + src[i+1]*.587 + src[i+2]*.114;
   }
 
-  for (let y=1; y<h-1; y++) {
-    for (let x=1; x<w-1; x++) {
+  for (let y=1;y<h-1;y++) {
+    for (let x=1;x<w-1;x++) {
       const gx = -gray(x-1,y-1)-2*gray(x-1,y)-gray(x-1,y+1)+gray(x+1,y-1)+2*gray(x+1,y)+gray(x+1,y+1);
       const gy = -gray(x-1,y-1)-2*gray(x,y-1)-gray(x+1,y-1)+gray(x-1,y+1)+2*gray(x,y+1)+gray(x+1,y+1);
       const edge = Math.sqrt(gx*gx + gy*gy);
-      const v = edge > threshold ? 18 : 255;
+      const v = edge > th ? 18 : 255;
       const i = (y*w+x)*4;
       dst[i]=dst[i+1]=dst[i+2]=v; dst[i+3]=255;
     }
   }
 
-  ctx.putImageData(out, 0, 0);
-  lineImage = canvas.toDataURL("image/png");
-  pushUndo();
-  toast("Đã tạo tranh nét chì.");
+  ctx.putImageData(out,0,0);
+  cleanLineState = canvas.toDataURL("image/png");
+  undoStack = [cleanLineState];
+  redoStack = [];
+  toast("Đã tạo nét chì.");
 }
 
-function setupPalette() {
-  colors.forEach((c, i) => {
-    const btn = document.createElement("button");
-    btn.className = "colorDot" + (i === 0 ? " active" : "");
-    btn.style.background = c;
-    btn.type = "button";
-    btn.onclick = () => {
-      color = c;
-      document.querySelectorAll(".colorDot").forEach(x => x.classList.remove("active"));
-      btn.classList.add("active");
-      setTool("brush");
-    };
-    palette.appendChild(btn);
-  });
-}
-
-canvas.addEventListener("pointerdown", e => {
-  e.preventDefault();
-  last = getPos(e);
-
-  if (tool === "bucket") {
-    pushUndo();
-    floodFill(last.x, last.y);
-    return;
-  }
-
-  drawing = true;
-  pushUndo();
+imageInput.addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    baseImage = img;
+    makeLineArt();
+  };
+  img.src = URL.createObjectURL(file);
 });
-
-canvas.addEventListener("pointermove", e => {
-  if (!drawing) return;
-  e.preventDefault();
-  drawLine(getPos(e));
-});
-
-canvas.addEventListener("pointerup", () => drawing = false);
-canvas.addEventListener("pointercancel", () => drawing = false);
-
-canvas.addEventListener("touchstart", e => e.preventDefault(), { passive:false });
-canvas.addEventListener("touchmove", e => e.preventDefault(), { passive:false });
 
 brushBtn.onclick = () => setTool("brush");
 eraserBtn.onclick = () => setTool("eraser");
 bucketBtn.onclick = () => setTool("bucket");
+sampleBtn.onclick = drawSample;
+lineBtn.onclick = makeLineArt;
 
 undoBtn.onclick = () => {
   if (undoStack.length <= 1) return;
@@ -316,24 +328,9 @@ redoBtn.onclick = () => {
 };
 
 resetBtn.onclick = () => {
-  if (lineImage) restore(lineImage);
+  if (cleanLineState) restore(cleanLineState);
   else drawSample();
-  pushUndo();
 };
-
-imageInput.onchange = e => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  const img = new Image();
-  img.onload = () => {
-    baseImage = img;
-    makeLineArt();
-  };
-  img.src = URL.createObjectURL(file);
-};
-
-lineBtn.onclick = makeLineArt;
-sampleBtn.onclick = drawSample;
 
 saveBtn.onclick = () => {
   const a = document.createElement("a");
@@ -345,9 +342,9 @@ saveBtn.onclick = () => {
 shareBtn.onclick = async () => {
   try {
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-    const file = new File([blob], "be-to-mau-pro.png", { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: "Bé Tô Màu Pro" });
+    const file = new File([blob], "be-to-mau-pro.png", { type:"image/png" });
+    if (navigator.canShare && navigator.canShare({ files:[file] })) {
+      await navigator.share({ files:[file], title:"Bé Tô Màu Pro" });
     } else {
       saveBtn.click();
     }
@@ -364,8 +361,8 @@ fullscreenBtn.onclick = () => {
 };
 
 window.addEventListener("resize", () => {
-  clearTimeout(window.resizeTimer);
-  window.resizeTimer = setTimeout(resizeCanvas, 150);
+  clearTimeout(window.__resizeTimer);
+  window.__resizeTimer = setTimeout(fitCanvas, 200);
 });
 
 if ("serviceWorker" in navigator) {
@@ -373,6 +370,6 @@ if ("serviceWorker" in navigator) {
 }
 
 setupPalette();
-resizeCanvas();
-drawSample();
+fitCanvas();
 setTool("brush");
+toast("Chạm vào tranh để tô màu.");
