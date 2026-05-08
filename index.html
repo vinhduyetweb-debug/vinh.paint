@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff7df" />
+  <title>Bé Tô Màu</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1>Bé Tô Màu</h1>
+        <p>Upload ảnh, tạo tranh nét chì và tô màu</p>
+      </div>
+      <button id="fullscreenBtn" class="smallBtn">⛶</button>
+    </header>
+
+    <section class="stageWrap">
+      <canvas id="paintCanvas"></canvas>
+    </section>
+
+    <section class="toolbar">
+      <div class="row">
+        <label class="toolBtn primary">
+          📷 Upload ảnh
+          <input id="imageInput" type="file" accept="image/*" hidden />
+        </label>
+        <button id="makeLineBtn" class="toolBtn">✏️ Tạo nét chì</button>
+        <button id="saveBtn" class="toolBtn">💾 Lưu ảnh</button>
+      </div>
+
+      <div class="row colors" id="colorPalette"></div>
+
+      <div class="row">
+        <button id="brushBtn" class="toolBtn active">🖌️ Cọ</button>
+        <button id="eraserBtn" class="toolBtn">🧽 Gôm</button>
+        <button id="undoBtn" class="toolBtn">↶ Hoàn tác</button>
+        <button id="resetBtn" class="toolBtn danger">↺ Làm lại</button>
+      </div>
+
+      <div class="sliders">
+        <label>Cỡ cọ <input id="brushSize" type="range" min="4" max="60" value="20" /></label>
+        <label>Độ nét <input id="edgePower" type="range" min="20" max="220" value="95" /></label>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

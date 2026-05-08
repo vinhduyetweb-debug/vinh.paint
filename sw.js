@@ -1,0 +1,1 @@
+self.addEventListener("install",e=>{e.waitUntil(caches.open("kids-coloring-v1").then(c=>c.addAll(["./","./index.html","./style.css","./app.js","./manifest.json"])))});self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request)))});

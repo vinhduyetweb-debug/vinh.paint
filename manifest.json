@@ -1,0 +1,9 @@
+{
+  "name": "Bé Tô Màu",
+  "short_name": "Tô Màu",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff7df",
+  "theme_color": "#fff7df",
+  "orientation": "portrait"
+}
