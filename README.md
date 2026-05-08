@@ -1,18 +1,27 @@
-# Bé Tô Màu - HTML Static PWA
+# Bé Tô Màu Pro - HTML Static PWA
 
-## Tính năng
-- Dùng trên điện thoại/iPad
-- Upload ảnh từ máy
+## Có gì trong bản Pro
+
+- Giao diện mobile/iPad đẹp hơn
+- Cọ tô màu
+- Gôm
+- Đổ màu bucket fill
+- Undo / Redo
+- Reset về tranh chưa tô
+- Upload ảnh từ điện thoại/iPad
 - Chuyển ảnh thành tranh nét chì
-- Tô màu bằng cọ
-- Gôm để tẩy màu
-- Hoàn tác
-- Làm lại ảnh chưa tô
-- Lưu ảnh PNG
-- Deploy Vercel dạng HTML tĩnh
+- Điều chỉnh độ nét ảnh
+- Lưu PNG
+- Chia sẻ ảnh nếu trình duyệt hỗ trợ
+- Fullscreen
+- PWA / Add to Home Screen
+- Deploy Vercel không cần build
 
 ## Deploy Vercel
-Giải nén thư mục rồi kéo thả vào Vercel, hoặc chạy:
+
+Giải nén file zip rồi kéo thả thư mục lên Vercel.
+
+Hoặc:
 
 ```bash
 npm i -g vercel
