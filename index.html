@@ -1,51 +1,72 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff4cc">
-  <title>Bé Tô Màu - Animals V2</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css?v=2">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Magic Coloring App</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="app.js"></script>
 </head>
 <body>
-<main class="app">
-  <header class="header">
-    <div>
-      <h1>🎨 Bé Tô Màu</h1>
-      <p>Chọn mẫu động vật, upload ảnh, tô màu và lưu ảnh</p>
-    </div>
-  </header>
 
-  <section id="canvasBox" class="canvasBox">
-    <canvas id="paintCanvas"></canvas>
-    <canvas id="lineCanvas"></canvas>
-    <div id="toast" class="toast">Chọn màu rồi kéo trên tranh để tô</div>
-  </section>
+<header class="topbar">
+<h1>🎨 Magic Coloring</h1>
 
-  <section class="toolbar">
-    <div class="row compact">
-      <label class="btn primary">📷 Upload
-        <input id="imageInput" type="file" accept="image/*" hidden>
-      </label>
-      <button id="lineBtn" class="btn">✏️ Nét chì</button>
-      <button id="saveBtn" class="btn good">💾 Lưu</button>
-      <button id="brushBtn" class="btn active">🖌️ Cọ</button>
-      <button id="eraserBtn" class="btn">🧽 Gôm</button>
-      <button id="undoBtn" class="btn">↶</button>
-      <button id="resetBtn" class="btn danger">↺</button>
-    </div>
+<div class="coins">
+🪙 <span id="coins">0</span>
+</div>
+</header>
 
-    <div id="sampleStrip" class="sampleStrip"></div>
+<section class="daily-challenge">
+<h2>🎯 Daily Challenge</h2>
+<p>Tô màu chú mèo hôm nay để nhận +50 coins</p>
+</section>
 
-    <div class="bottomTools">
-      <div id="palette" class="palette"></div>
-      <label class="rangeLabel">Cỡ cọ
-        <input id="sizeRange" type="range" min="4" max="80" value="26">
-      </label>
-    </div>
-  </section>
-</main>
-<script src="app.js?v=2"></script>
+<section class="canvas-section">
+
+<div class="character">
+<div id="character">🐱</div>
+</div>
+
+<div class="color-palette">
+
+<button class="color-btn" style="background:#ef4444"
+onclick="paint('#ef4444')"></button>
+
+<button class="color-btn" style="background:#3b82f6"
+onclick="paint('#3b82f6')"></button>
+
+<button class="color-btn" style="background:#22c55e"
+onclick="paint('#22c55e')"></button>
+
+<button class="color-btn" style="background:#f59e0b"
+onclick="paint('#f59e0b')"></button>
+
+<button class="color-btn" style="background:#a855f7"
+onclick="paint('#a855f7')"></button>
+
+</div>
+
+<button class="magic-btn"
+onclick="unlockReward()">
+✨ Unlock Magic Pack
+</button>
+
+</section>
+
+<section class="reward-box">
+<h3>🏆 Unlockables</h3>
+
+<div class="rewards">
+<div class="reward">🌈 Rainbow Pack</div>
+<div class="reward">🦄 Unicorn Pack</div>
+<div class="reward">🚀 Space Pack</div>
+</div>
+</section>
+
+<div id="confetti" class="hidden">
+🎉✨🌈🎊
+</div>
+
 </body>
 </html>

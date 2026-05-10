@@ -1,9 +1,8 @@
 {
-  "name": "Bé Tô Màu Animals V2",
-  "short_name": "Tô Màu",
-  "start_url": ".",
+  "name": "Magic Coloring",
+  "short_name": "Coloring",
   "display": "standalone",
-  "background_color": "#fff4cc",
-  "theme_color": "#fff4cc",
-  "orientation": "portrait"
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#020617"
 }
