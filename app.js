@@ -1,37 +1,42 @@
 
 let coins = parseInt(localStorage.getItem('coins') || 0);
+let xp = parseInt(localStorage.getItem('xp') || 0);
 
-updateCoins();
+updateUI();
 
 function paint(color){
 
-const character =
-document.getElementById('character');
+const animal = document.getElementById('animal');
 
-character.style.color = color;
-
-character.style.transform = 'scale(1.15)';
-
-setTimeout(()=>{
-character.style.transform = 'scale(1)';
-},300);
+animal.style.color = color;
+animal.style.transform = 'scale(1.15)';
 
 showConfetti();
+playSound();
 
 coins += 5;
+xp += 1;
 
 localStorage.setItem('coins', coins);
+localStorage.setItem('xp', xp);
 
-updateCoins();
+updateUI();
 
-playRewardSound();
+setTimeout(()=>{
+animal.style.transform = 'scale(1)';
+},300);
+
+}
+
+function changeAnimal(emoji){
+
+document.getElementById('animal').innerText = emoji;
 
 }
 
 function showConfetti(){
 
-const confetti =
-document.getElementById('confetti');
+const confetti = document.getElementById('confetti');
 
 confetti.classList.remove('hidden');
 
@@ -41,13 +46,23 @@ confetti.classList.add('hidden');
 
 }
 
-function unlockReward(){
+function playSound(){
+
+const audio = new Audio(
+'https://actions.google.com/sounds/v1/cartoon/pop.ogg'
+);
+
+audio.play();
+
+}
+
+function unlockPack(){
 
 if(coins >= 100){
 
 coins -= 100;
 
-alert('🌈 Rainbow Pack Unlocked!');
+alert('🎉 Rainbow Pack Unlocked!');
 
 }else{
 
@@ -57,22 +72,25 @@ alert('🔒 Need 100 coins');
 
 localStorage.setItem('coins', coins);
 
-updateCoins();
+updateUI();
 
 }
 
-function updateCoins(){
+function saveArtwork(){
+
+coins += 20;
+
+localStorage.setItem('coins', coins);
+
+updateUI();
+
+alert('💾 Artwork Saved! +20 coins');
+
+}
+
+function updateUI(){
 
 document.getElementById('coins').innerText = coins;
-
-}
-
-function playRewardSound(){
-
-const audio = new Audio(
-'https://actions.google.com/sounds/v1/cartoon/pop.ogg'
-);
-
-audio.play();
+document.getElementById('xp').innerText = xp;
 
 }

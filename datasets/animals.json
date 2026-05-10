@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Cat",
+    "emoji": "\ud83d\udc31",
+    "reward": 10
+  },
+  {
+    "name": "Dog",
+    "emoji": "\ud83d\udc36",
+    "reward": 10
+  },
+  {
+    "name": "Lion",
+    "emoji": "\ud83e\udd81",
+    "reward": 20
+  },
+  {
+    "name": "Unicorn",
+    "emoji": "\ud83e\udd84",
+    "reward": 30
+  }
+]

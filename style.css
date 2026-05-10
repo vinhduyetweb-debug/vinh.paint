@@ -21,86 +21,98 @@ padding:18px;
 background:#111827;
 position:sticky;
 top:0;
+z-index:999;
 }
 
-.coins{
+.stats{
+display:flex;
+gap:14px;
+}
+
+.stats div{
 background:#1e293b;
 padding:10px 14px;
 border-radius:999px;
 }
 
-.daily-challenge{
-margin:20px;
+.challenge-box{
+margin:18px;
 padding:20px;
-background:linear-gradient(135deg,#1d4ed8,#2563eb);
 border-radius:24px;
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
 }
 
-.canvas-section{
+.gallery{
+display:flex;
+gap:12px;
+overflow:auto;
+padding:18px;
+}
+
+.template{
+min-width:80px;
+height:80px;
+font-size:40px;
+border:none;
+border-radius:22px;
+background:#1e293b;
+color:white;
+}
+
+.active{
+outline:3px solid #22c55e;
+}
+
+.canvas-area{
 padding:20px;
 text-align:center;
 }
 
-.character{
-display:flex;
-justify-content:center;
-align-items:center;
-margin:30px 0;
-}
-
-#character{
+#animal{
 font-size:180px;
 transition:.3s ease;
-filter:drop-shadow(0 0 20px rgba(255,255,255,.5));
+filter:drop-shadow(0 0 20px rgba(255,255,255,.35));
 }
 
-.color-palette{
+.palette{
 display:flex;
 justify-content:center;
-gap:14px;
+gap:12px;
 margin-top:20px;
 flex-wrap:wrap;
 }
 
-.color-btn{
+.palette button{
 width:60px;
 height:60px;
 border:none;
 border-radius:50%;
-cursor:pointer;
-box-shadow:0 0 20px rgba(255,255,255,.2);
+box-shadow:0 0 20px rgba(255,255,255,.25);
 }
 
-.magic-btn{
-margin-top:30px;
-padding:18px 24px;
+.actions{
+display:flex;
+gap:10px;
+margin-top:24px;
+justify-content:center;
+}
+
+.actions button{
+padding:16px 20px;
 border:none;
 border-radius:999px;
-background:#f59e0b;
-color:black;
 font-weight:bold;
-font-size:18px;
-cursor:pointer;
 }
 
-.reward-box{
-margin:20px;
+.reward-section{
 padding:20px;
+}
+
+.reward-card{
+margin-top:14px;
+padding:18px;
 background:#111827;
-border-radius:24px;
-}
-
-.rewards{
-display:flex;
-flex-direction:column;
-gap:12px;
-margin-top:16px;
-}
-
-.reward{
-padding:16px;
-background:#1e293b;
-border-radius:18px;
+border-radius:20px;
 }
 
 #confetti{
@@ -108,9 +120,9 @@ position:fixed;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-font-size:50px;
-z-index:9999;
+font-size:48px;
 animation:pop .8s ease infinite alternate;
+z-index:9999;
 }
 
 .hidden{
@@ -118,10 +130,6 @@ display:none;
 }
 
 @keyframes pop{
-from{
-transform:translate(-50%,-50%) scale(1);
-}
-to{
-transform:translate(-50%,-50%) scale(1.2);
-}
+from{transform:translate(-50%,-50%) scale(1);}
+to{transform:translate(-50%,-50%) scale(1.2);}
 }

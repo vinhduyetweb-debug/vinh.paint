@@ -3,70 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Magic Coloring App</title>
+<title>Kids Coloring Animals V3</title>
 <link rel="stylesheet" href="style.css">
 <script defer src="app.js"></script>
 </head>
 <body>
 
 <header class="topbar">
-<h1>🎨 Magic Coloring</h1>
+<h1>🎨 Kids Coloring Animals V3</h1>
 
-<div class="coins">
-🪙 <span id="coins">0</span>
+<div class="stats">
+<div>🪙 <span id="coins">0</span></div>
+<div>🏆 <span id="xp">0</span></div>
 </div>
 </header>
 
-<section class="daily-challenge">
+<section class="challenge-box">
 <h2>🎯 Daily Challenge</h2>
-<p>Tô màu chú mèo hôm nay để nhận +50 coins</p>
+<p>Tô màu chú mèo để nhận +50 coins</p>
 </section>
 
-<section class="canvas-section">
+<section class="gallery">
+<button class="template active" onclick="changeAnimal('🐱')">🐱</button>
+<button class="template" onclick="changeAnimal('🐶')">🐶</button>
+<button class="template" onclick="changeAnimal('🦁')">🦁</button>
+<button class="template" onclick="changeAnimal('🦄')">🦄</button>
+</section>
 
-<div class="character">
-<div id="character">🐱</div>
+<section class="canvas-area">
+
+<div id="animal">🐱</div>
+
+<div class="palette">
+<button style="background:#ef4444" onclick="paint('#ef4444')"></button>
+<button style="background:#3b82f6" onclick="paint('#3b82f6')"></button>
+<button style="background:#22c55e" onclick="paint('#22c55e')"></button>
+<button style="background:#f59e0b" onclick="paint('#f59e0b')"></button>
+<button style="background:#a855f7" onclick="paint('#a855f7')"></button>
 </div>
 
-<div class="color-palette">
-
-<button class="color-btn" style="background:#ef4444"
-onclick="paint('#ef4444')"></button>
-
-<button class="color-btn" style="background:#3b82f6"
-onclick="paint('#3b82f6')"></button>
-
-<button class="color-btn" style="background:#22c55e"
-onclick="paint('#22c55e')"></button>
-
-<button class="color-btn" style="background:#f59e0b"
-onclick="paint('#f59e0b')"></button>
-
-<button class="color-btn" style="background:#a855f7"
-onclick="paint('#a855f7')"></button>
-
+<div class="actions">
+<button onclick="unlockPack()">🔓 Unlock Pack</button>
+<button onclick="saveArtwork()">💾 Save</button>
 </div>
-
-<button class="magic-btn"
-onclick="unlockReward()">
-✨ Unlock Magic Pack
-</button>
 
 </section>
 
-<section class="reward-box">
-<h3>🏆 Unlockables</h3>
+<section class="reward-section">
+<h2>✨ Unlock Packs</h2>
 
-<div class="rewards">
-<div class="reward">🌈 Rainbow Pack</div>
-<div class="reward">🦄 Unicorn Pack</div>
-<div class="reward">🚀 Space Pack</div>
-</div>
+<div class="reward-card">🌈 Rainbow Pack</div>
+<div class="reward-card">🦄 Unicorn Pack</div>
+<div class="reward-card">🚀 Space Pack</div>
 </section>
 
-<div id="confetti" class="hidden">
-🎉✨🌈🎊
-</div>
+<div id="confetti" class="hidden">🎉✨🌈🎊</div>
 
 </body>
 </html>
