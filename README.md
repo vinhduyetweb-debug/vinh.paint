@@ -1,17 +1,15 @@
-# Bé Tô Màu - Họa Sĩ Nhí V3
+# Bé Tô Màu V4
 
-Bản này chỉnh trực tiếp từ app gốc, giữ deploy tĩnh trên Vercel.
+## Nâng cấp V4
+- Thay hệ 10 tranh procedural cũ bằng hệ line-art SVG premium hơn.
+- Tổng 20 tranh mẫu: 10 tranh animals/ocean/fantasy + 10 tranh mèo robot hoạt hình nguyên bản.
+- Thêm category carousel: Animals, Ocean, Robot Cat, Tất cả.
+- Tranh có background, phụ kiện, bong bóng, hoa, sao, san hô để tô màu nhiều vùng hơn.
+- Giữ toàn bộ tính năng V3: upload ảnh, tạo nét chì, lưu PNG, brush/cọ/bút lông/sáp/kim tuyến/gôm/undo/reset.
+- UI kids/game: mascot, slogan, màu thương hiệu, animation, confetti, sound.
 
-## Đã nâng cấp
-- UI kids/game: bo tròn lớn, nút to, màu thương hiệu mới.
-- Header có mascot động vật, slogan và daily challenge.
-- 10 mẫu động vật được vẽ lại chi tiết hơn bằng canvas line-art.
-- Thêm brush mới: Cọ, Bút lông, Sáp màu, Kim tuyến, Gôm.
-- Bút lông có opacity/texture nhẹ để giống nét viết lông hơn.
-- Animation pop/bounce/sparkle khi thao tác.
-- Celebration popup + confetti + sound khi hoàn thành/lưu.
-- Giữ tính năng upload ảnh -> tạo nét chì.
-- Giữ tính năng lưu ảnh PNG.
+## Lưu ý bản quyền
+Nhóm “Robot Cat” là nhân vật mèo robot hoạt hình nguyên bản lấy cảm hứng chung từ anime kids, không dùng ảnh chính thức hoặc asset có bản quyền.
 
-## Deploy
-Upload toàn bộ thư mục này lên Vercel. Không cần build.
+## Deploy Vercel
+Kéo thả toàn bộ thư mục này lên Vercel. Không cần build.

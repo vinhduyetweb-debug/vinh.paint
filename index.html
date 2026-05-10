@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#FFF4CC">
-  <title>Bé Tô Màu - Họa Sĩ Nhí</title>
+  <title>Bé Tô Màu - V4 Premium Coloring</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <main class="app">
@@ -17,7 +17,7 @@
       <p id="slogan">Tô một chút, vui cả ngày ✨</p>
     </div>
     <button id="completeBtn" class="mascot" type="button" aria-label="Hoàn thành tranh">
-      <span class="mascot-face">🦁</span>
+      <span class="mascot-face">🐱</span>
       <span class="mascot-label">Xong!</span>
     </button>
   </header>
@@ -25,18 +25,25 @@
   <section class="challenge toy-card">
     <div>
       <strong>🔥 Thử thách hôm nay</strong>
-      <span>Tô chú voi thật rực rỡ để nhận sticker cầu vồng.</span>
+      <span>Chọn tranh đẹp, tô màu rực rỡ, nhận sticker cầu vồng.</span>
     </div>
     <span class="reward-pill">⭐ +1 sticker</span>
   </section>
 
-  <section id="sampleStrip" class="sampleStrip" aria-label="Chọn mẫu động vật"></section>
+  <section class="categoryBar" aria-label="Chủ đề tranh">
+    <button class="catChip active" data-category="animals">🐾 Animals</button>
+    <button class="catChip" data-category="ocean">🌊 Ocean</button>
+    <button class="catChip" data-category="robotcat">🤖 Robot Cat</button>
+    <button class="catChip" data-category="all">🌈 Tất cả</button>
+  </section>
+
+  <section id="sampleStrip" class="sampleStrip" aria-label="Chọn mẫu tranh"></section>
 
   <section id="canvasBox" class="canvasBox">
     <canvas id="paintCanvas"></canvas>
     <canvas id="lineCanvas"></canvas>
     <div id="sparkleLayer" class="sparkleLayer"></div>
-    <div id="toast" class="toast">Chọn màu rồi kéo trên tranh để tô</div>
+    <div id="toast" class="toast">Chọn tranh, chọn màu rồi kéo để tô</div>
   </section>
 
   <section class="toolbar toy-card">
@@ -70,7 +77,7 @@
 
 <div id="celebration" class="celebration hidden" role="dialog" aria-modal="true">
   <div class="party-card">
-    <div class="party-animal">🦄</div>
+    <div class="party-animal">🌈</div>
     <h2>Bé tô đẹp quá!</h2>
     <p>Bức tranh đã sẵn sàng để lưu và khoe với cả nhà.</p>
     <div class="party-actions">
@@ -80,6 +87,6 @@
   </div>
 </div>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
