@@ -1,67 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bé Tô Màu</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFF4CC">
+  <title>Bé Tô Màu - Họa Sĩ Nhí</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
-  <div class="app">
-    <header class="hero">
-      <div>
-        <h1>Bé Tô Màu</h1>
-        <p>Tô một chút, vui cả ngày ✨</p>
-      </div>
-      <div class="mascot">🦁</div>
-    </header>
+<main class="app">
+  <header class="header toy-card">
+    <div class="brand-copy">
+      <span class="eyebrow">Sân chơi màu sắc cho họa sĩ nhí</span>
+      <h1><span class="logo-bubble">🎨</span> Bé Tô Màu</h1>
+      <p id="slogan">Tô một chút, vui cả ngày ✨</p>
+    </div>
+    <button id="completeBtn" class="mascot" type="button" aria-label="Hoàn thành tranh">
+      <span class="mascot-face">🦁</span>
+      <span class="mascot-label">Xong!</span>
+    </button>
+  </header>
 
-    <section class="worlds">
-      <button class="world active">🦁 Safari</button>
-      <button class="world">🐠 Đại dương</button>
-      <button class="world">🦕 Dino</button>
-    </section>
+  <section class="challenge toy-card">
+    <div>
+      <strong>🔥 Thử thách hôm nay</strong>
+      <span>Tô chú voi thật rực rỡ để nhận sticker cầu vồng.</span>
+    </div>
+    <span class="reward-pill">⭐ +1 sticker</span>
+  </section>
 
-    <section class="canvas-card">
-      <div class="toolbar">
-        <button>🖌 Cọ</button>
-        <button>✏ Bút lông</button>
-        <button>🖍 Sáp màu</button>
-        <button>✨ Kim tuyến</button>
-      </div>
+  <section id="sampleStrip" class="sampleStrip" aria-label="Chọn mẫu động vật"></section>
 
-      <div class="palette">
-        <span class="color" style="background:#FF6B6B"></span>
-        <span class="color" style="background:#FFD93D"></span>
-        <span class="color" style="background:#6BCB77"></span>
-        <span class="color" style="background:#4D96FF"></span>
-        <span class="color" style="background:#FF6B9A"></span>
-      </div>
+  <section id="canvasBox" class="canvasBox">
+    <canvas id="paintCanvas"></canvas>
+    <canvas id="lineCanvas"></canvas>
+    <div id="sparkleLayer" class="sparkleLayer"></div>
+    <div id="toast" class="toast">Chọn màu rồi kéo trên tranh để tô</div>
+  </section>
 
-      <div class="canvas-placeholder">
-        <div class="animal">🦒</div>
-        <p>Canvas tô màu nâng cấp</p>
-      </div>
+  <section class="toolbar toy-card">
+    <div class="topTools">
+      <label class="btn primary">📷 <span>Upload</span>
+        <input id="imageInput" type="file" accept="image/*" hidden>
+      </label>
+      <button id="lineBtn" class="btn">✏️ <span>Nét chì</span></button>
+      <button id="saveBtn" class="btn good">💾 <span>Lưu</span></button>
+      <button id="completeBtn2" class="btn wow">🎉 <span>Hoàn thành</span></button>
+    </div>
 
-      <button id="finishBtn" class="finish-btn">
-        🎉 Hoàn thành tranh
-      </button>
-    </section>
+    <div class="toolDock" aria-label="Công cụ tô màu">
+      <button id="brushBtn" class="toolBtn active" data-tool="brush"><span>🖌️</span><small>Cọ</small></button>
+      <button id="markerBtn" class="toolBtn" data-tool="marker"><span>✍️</span><small>Bút lông</small></button>
+      <button id="crayonBtn" class="toolBtn" data-tool="crayon"><span>🖍️</span><small>Sáp</small></button>
+      <button id="glitterBtn" class="toolBtn" data-tool="glitter"><span>✨</span><small>Kim tuyến</small></button>
+      <button id="eraserBtn" class="toolBtn" data-tool="eraser"><span>🧽</span><small>Gôm</small></button>
+      <button id="undoBtn" class="toolBtn"><span>↶</span><small>Undo</small></button>
+      <button id="resetBtn" class="toolBtn danger"><span>↺</span><small>Xóa</small></button>
+    </div>
 
-    <section class="daily">
-      <h2>🔥 Daily Challenge</h2>
-      <p>Hôm nay tô màu chú voi để nhận sticker!</p>
-    </section>
-  </div>
+    <div class="bottomTools">
+      <div id="palette" class="palette" aria-label="Bảng màu"></div>
+      <label class="rangeLabel">Cỡ nét
+        <input id="sizeRange" type="range" min="4" max="90" value="28">
+      </label>
+    </div>
+  </section>
+</main>
 
-  <div id="celebration" class="celebration hidden">
-    <div class="popup">
-      <h2>🎉 Bé tô đẹp quá!</h2>
-      <p>Nhận được sticker cầu vồng ✨</p>
-      <button onclick="closePopup()">Tiếp tục</button>
+<div id="celebration" class="celebration hidden" role="dialog" aria-modal="true">
+  <div class="party-card">
+    <div class="party-animal">🦄</div>
+    <h2>Bé tô đẹp quá!</h2>
+    <p>Bức tranh đã sẵn sàng để lưu và khoe với cả nhà.</p>
+    <div class="party-actions">
+      <button id="partySaveBtn" class="btn good">💾 Lưu ảnh</button>
+      <button id="partyCloseBtn" class="btn primary">Tiếp tục tô</button>
     </div>
   </div>
+</div>
 
-  <script src="app.js"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>
