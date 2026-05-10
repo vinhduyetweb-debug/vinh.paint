@@ -13,3 +13,11 @@ Nhóm “Robot Cat” là nhân vật mèo robot hoạt hình nguyên bản lấ
 
 ## Deploy Vercel
 Kéo thả toàn bộ thư mục này lên Vercel. Không cần build.
+
+
+## V5 cập nhật
+- Mở rộng khu vực chọn 20 tranh mẫu.
+- Chuyển sample strip thành gallery/carousel 2 hàng trên mobile.
+- Desktop hiển thị grid 5x2 rộng, không bị che khuất.
+- Thumbnail lớn hơn, card rõ hơn, active glow/pop.
+- Tăng spacing, bo góc và scroll-snap để chọn tranh mượt hơn.
