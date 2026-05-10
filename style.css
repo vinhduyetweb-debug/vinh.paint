@@ -1,135 +1,28 @@
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
-body{
-font-family:Arial,sans-serif;
-background:#020617;
-color:white;
-min-height:100vh;
-overflow-x:hidden;
-}
-
-.topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:18px;
-background:#111827;
-position:sticky;
-top:0;
-z-index:999;
-}
-
-.stats{
-display:flex;
-gap:14px;
-}
-
-.stats div{
-background:#1e293b;
-padding:10px 14px;
-border-radius:999px;
-}
-
-.challenge-box{
-margin:18px;
-padding:20px;
-border-radius:24px;
-background:linear-gradient(135deg,#2563eb,#1d4ed8);
-}
-
-.gallery{
-display:flex;
-gap:12px;
-overflow:auto;
-padding:18px;
-}
-
-.template{
-min-width:80px;
-height:80px;
-font-size:40px;
-border:none;
-border-radius:22px;
-background:#1e293b;
-color:white;
-}
-
-.active{
-outline:3px solid #22c55e;
-}
-
-.canvas-area{
-padding:20px;
-text-align:center;
-}
-
-#animal{
-font-size:180px;
-transition:.3s ease;
-filter:drop-shadow(0 0 20px rgba(255,255,255,.35));
-}
-
-.palette{
-display:flex;
-justify-content:center;
-gap:12px;
-margin-top:20px;
-flex-wrap:wrap;
-}
-
-.palette button{
-width:60px;
-height:60px;
-border:none;
-border-radius:50%;
-box-shadow:0 0 20px rgba(255,255,255,.25);
-}
-
-.actions{
-display:flex;
-gap:10px;
-margin-top:24px;
-justify-content:center;
-}
-
-.actions button{
-padding:16px 20px;
-border:none;
-border-radius:999px;
-font-weight:bold;
-}
-
-.reward-section{
-padding:20px;
-}
-
-.reward-card{
-margin-top:14px;
-padding:18px;
-background:#111827;
-border-radius:20px;
-}
-
-#confetti{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-font-size:48px;
-animation:pop .8s ease infinite alternate;
-z-index:9999;
-}
-
-.hidden{
-display:none;
-}
-
-@keyframes pop{
-from{transform:translate(-50%,-50%) scale(1);}
-to{transform:translate(-50%,-50%) scale(1.2);}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;background:#fff4cc;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+.app{height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:10px;max-width:1100px;margin:auto}
+.header h1{margin:0;color:#6b3e00;font-size:21px}.header p{margin:2px 0 0;color:#8a6500;font-size:12px}
+.canvasBox{position:relative;background:#fff;border:4px solid #ffdc72;border-radius:22px;overflow:hidden;min-height:340px;box-shadow:0 10px 26px rgba(126,78,0,.15)}
+#paintCanvas,#lineCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#paintCanvas{z-index:1;background:white;touch-action:none;cursor:crosshair}
+#lineCanvas{z-index:2;pointer-events:none}
+.toolbar{background:rgba(255,255,255,.96);border:2px solid #ffdc72;border-radius:20px;padding:7px;display:grid;gap:6px}
+.row,.palette,.sampleStrip{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 3px}
+.btn{border:0;border-radius:13px;padding:8px 10px;white-space:nowrap;background:#f1f1f1;color:#442900;font-weight:800;font-size:13px}
+.btn.primary{background:#ffbf2e}.btn.good{background:#b8f7c0}.btn.danger{background:#ffd1d1}.btn.active{outline:3px solid #ff8a00;background:#fff0bd}
+.sampleBtn{border:0;border-radius:14px;padding:7px 10px;background:#fff1b8;color:#5b3700;font-weight:800;white-space:nowrap;font-size:13px;border:1px solid #ffd86a}
+.sampleBtn.active{outline:3px solid #ff8a00;background:#ffe28a}
+.bottomTools{display:grid;grid-template-columns:1fr 120px;gap:7px;align-items:center}
+.colorDot{width:30px;height:30px;flex:0 0 auto;border-radius:999px;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.colorDot.active{outline:3px solid #333}
+.rangeLabel{display:grid;gap:2px;color:#5b3700;font-weight:800;font-size:11px}
+.rangeLabel input{width:100%}
+.toast{position:absolute;z-index:3;left:50%;bottom:12px;transform:translateX(-50%);background:rgba(0,0,0,.65);color:white;border-radius:999px;padding:8px 12px;pointer-events:none;font-size:12px;max-width:92%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(min-width:768px){
+  .app{padding:12px;gap:10px}
+  .header h1{font-size:28px}.header p{font-size:14px}
+  .toolbar{padding:8px}
+  .btn,.sampleBtn{font-size:14px;padding:9px 12px}
+  .colorDot{width:34px;height:34px}
+  .bottomTools{grid-template-columns:1fr 180px}
 }
