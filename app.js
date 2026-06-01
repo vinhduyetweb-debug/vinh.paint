@@ -326,8 +326,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const size = Number(sizeRange.value) * (window.devicePixelRatio || 1);
     pctx.save(); pctx.lineCap = "round"; pctx.lineJoin = "round";
     if(tool === "eraser") { pctx.globalCompositeOperation = "source-over"; pctx.fillStyle="#fff"; pctx.beginPath(); pctx.arc(p.x,p.y,size/2,0,Math.PI*2); pctx.fill(); }
-    else if(tool === "marker") { pctx.globalAlpha=.55; pctx.fillStyle=currentColor; pctx.beginPath(); pctx.arc(p.x,p.y,size*.55,0,Math.PI*2); pctx.fill(); }
-    else if(tool === "crayon") { pctx.globalAlpha=.82; for(let i=0;i<8;i++){pctx.fillStyle=currentColor;pctx.beginPath();pctx.arc(p.x+(Math.random()-.5)*size*.7,p.y+(Math.random()-.5)*size*.7,Math.max(1,size*.12*Math.random()),0,Math.PI*2);pctx.fill();} }
+    else if(tool === "marker") {
+      pctx.fillStyle=currentColor;
+      pctx.globalAlpha=.7; pctx.beginPath(); pctx.arc(p.x,p.y,size*.28,0,Math.PI*2); pctx.fill();
+      pctx.globalAlpha=.9; pctx.beginPath(); pctx.arc(p.x,p.y,size*.16,0,Math.PI*2); pctx.fill();
+    }
+    else if(tool === "crayon") {
+      const w = Math.max(2, size*.45);
+      pctx.fillStyle=currentColor;
+      pctx.globalAlpha=.42;
+      pctx.beginPath(); pctx.arc(p.x,p.y,w*.45,0,Math.PI*2); pctx.fill();
+      pctx.globalAlpha=.26;
+      for(let i=0;i<7;i++){
+        const jitter = (Math.random()-.5) * w * 1.2;
+        pctx.beginPath();
+        pctx.arc(p.x+jitter,p.y+(Math.random()-.5)*w*1.2,Math.max(1,w*.12*Math.random()),0,Math.PI*2);
+        pctx.fill();
+      }
+    }
     else if(tool === "glitter") { pctx.fillStyle=currentColor; pctx.beginPath(); pctx.arc(p.x,p.y,size*.33,0,Math.PI*2); pctx.fill(); pctx.fillStyle="#fff"; for(let i=0;i<3;i++){pctx.fillRect(p.x+(Math.random()-.5)*size,p.y+(Math.random()-.5)*size,Math.max(2,size*.07),Math.max(2,size*.07));} popSparkle(p.x,p.y,"✨"); }
     else { pctx.fillStyle=currentColor; pctx.beginPath(); pctx.arc(p.x,p.y,size/2,0,Math.PI*2); pctx.fill(); }
     pctx.restore();
@@ -337,10 +353,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const size = Number(sizeRange.value) * (window.devicePixelRatio || 1);
     pctx.save(); pctx.lineCap="round"; pctx.lineJoin="round";
     if(tool === "eraser") { pctx.strokeStyle="#ffffff"; pctx.globalAlpha=1; pctx.lineWidth=size*1.15; }
-    else if(tool === "marker") { pctx.strokeStyle=currentColor; pctx.globalAlpha=.48; pctx.lineWidth=size*1.08; }
+    else if(tool === "marker") {
+      pctx.strokeStyle=currentColor;
+      pctx.globalAlpha=.68; pctx.lineWidth=Math.max(2,size*.55);
+      pctx.beginPath(); pctx.moveTo(last.x,last.y); pctx.lineTo(p.x,p.y); pctx.stroke();
+      pctx.globalAlpha=.86; pctx.lineWidth=Math.max(1.5,size*.32);
+      pctx.beginPath(); pctx.moveTo(last.x,last.y); pctx.lineTo(p.x,p.y); pctx.stroke();
+      pctx.restore(); last=p; return;
+    }
     else if(tool === "crayon") {
-      pctx.strokeStyle=currentColor; pctx.globalAlpha=.72; pctx.lineWidth=size*.72;
-      for(let i=0;i<4;i++){ pctx.beginPath(); pctx.moveTo(last.x+(Math.random()-.5)*4,last.y+(Math.random()-.5)*4); pctx.lineTo(p.x+(Math.random()-.5)*4,p.y+(Math.random()-.5)*4); pctx.stroke(); }
+      const w = Math.max(2,size*.45);
+      const dpr = window.devicePixelRatio || 1;
+      const jitter = 2.5 * dpr;
+      const dist = Math.hypot(p.x-last.x,p.y-last.y);
+      pctx.strokeStyle=currentColor;
+      pctx.globalAlpha=.58; pctx.lineWidth=w; pctx.beginPath(); pctx.moveTo(last.x,last.y); pctx.lineTo(p.x,p.y); pctx.stroke();
+      for(let i=0;i<3;i++){
+        pctx.globalAlpha=.22 + Math.random()*.16;
+        pctx.lineWidth=Math.max(1,w*(.18 + Math.random()*.28));
+        pctx.beginPath();
+        pctx.moveTo(last.x+(Math.random()-.5)*jitter,last.y+(Math.random()-.5)*jitter);
+        pctx.lineTo(p.x+(Math.random()-.5)*jitter,p.y+(Math.random()-.5)*jitter);
+        pctx.stroke();
+      }
+      const grains = Math.min(8, Math.max(2, Math.ceil(dist / Math.max(6,w))));
+      pctx.fillStyle=currentColor; pctx.globalAlpha=.2;
+      for(let i=0;i<grains;i++){
+        const t = Math.random();
+        pctx.beginPath();
+        pctx.arc(last.x+(p.x-last.x)*t+(Math.random()-.5)*jitter,last.y+(p.y-last.y)*t+(Math.random()-.5)*jitter,Math.max(1,w*.12*Math.random()),0,Math.PI*2);
+        pctx.fill();
+      }
       pctx.restore(); last=p; return;
     }
     else if(tool === "glitter") { pctx.strokeStyle=currentColor; pctx.globalAlpha=.85; pctx.lineWidth=size*.68; popSparkle(p.x,p.y,"✨"); }
