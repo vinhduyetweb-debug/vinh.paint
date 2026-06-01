@@ -19,15 +19,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const toast = document.getElementById("toast");
   const sizeRange = document.getElementById("sizeRange");
   const catChips = [...document.querySelectorAll(".catChip")];
+  const stickerTray = document.getElementById("stickerTray");
+  const stickerChoices = [...document.querySelectorAll(".stickerChoice")];
 
   const toolButtons = {
     brush: document.getElementById("brushBtn"),
     marker: document.getElementById("markerBtn"),
     crayon: document.getElementById("crayonBtn"),
     glitter: document.getElementById("glitterBtn"),
-    eraser: document.getElementById("eraserBtn")
+    eraser: document.getElementById("eraserBtn"),
+    sticker: document.getElementById("stickerBtn")
   };
   const undoBtn = document.getElementById("undoBtn");
+  const redoBtn = document.getElementById("redoBtn");
   const resetBtn = document.getElementById("resetBtn");
 
   let currentColor = "#ff3b30";
@@ -38,9 +42,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let cleanPaint = null;
   let cleanLine = null;
   let undoStack = [];
+  let redoStack = [];
   let currentSample = "cat_princess";
   let currentCategory = "animals";
   let lastSparkle = 0;
+  let selectedSticker = "⭐";
+  const AUTOSAVE_KEY = "vinhpaint_autosave_v1";
+  const HISTORY_LIMIT = 50;
 
   const colors = ["#ff3b30", "#ff9500", "#ffcc00", "#34c759", "#8FF3D4", "#007aff", "#5856d6", "#af52de", "#FF6B9A", "#8e5a2a", "#111111", "#ffffff"];
 
@@ -186,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ip.onload=()=>pctx.drawImage(ip,0,0,w,h);
       il.onload=()=>lctx.drawImage(il,0,0,w,h);
       ip.src=oldPaint; il.src=oldLine;
-    } else drawSample(currentSample);
+    } else if(!restoreAutosave(true)) drawSample(currentSample);
   }
 
   function clearPaint(){ pctx.fillStyle="white"; pctx.fillRect(0,0,paintCanvas.width,paintCanvas.height); }
@@ -238,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const y = (lineCanvas.height - ih)/2;
       lctx.drawImage(img, x, y, iw, ih);
       URL.revokeObjectURL(url);
-      saveClean(); undoStack = [paintCanvas.toDataURL("image/png")];
+      saveClean(); resetHistory(); autosave();
     };
     img.src = url;
   }
@@ -249,9 +257,65 @@ document.addEventListener("DOMContentLoaded", () => {
     msg("Đã chọn mẫu: " + (s ? s.name : id));
   }
 
-  function saveClean(){ cleanPaint = paintCanvas.toDataURL("image/png"); cleanLine = lineCanvas.toDataURL("image/png"); }
-  function pushUndo(){ undoStack.push(paintCanvas.toDataURL("image/png")); if(undoStack.length > 35) undoStack.shift(); }
-  function restorePaint(url){ const img = new Image(); img.onload=()=>{ clearPaint(); pctx.drawImage(img,0,0,paintCanvas.width,paintCanvas.height); }; img.src=url; }
+  function capturePaint(){ return paintCanvas.toDataURL("image/png"); }
+  function captureLine(){ return lineCanvas.toDataURL("image/png"); }
+  function blankPaintURL(){
+    const tmp = document.createElement("canvas");
+    tmp.width = paintCanvas.width; tmp.height = paintCanvas.height;
+    const t = tmp.getContext("2d");
+    t.fillStyle = "#fff"; t.fillRect(0,0,tmp.width,tmp.height);
+    return tmp.toDataURL("image/png");
+  }
+  function saveClean(){ cleanPaint = capturePaint(); cleanLine = captureLine(); }
+  function resetHistory(){ undoStack = [capturePaint()]; redoStack = []; }
+  function pushHistory(clearRedo = true){
+    const snap = capturePaint();
+    if(undoStack[undoStack.length - 1] !== snap) {
+      undoStack.push(snap);
+      if(undoStack.length > HISTORY_LIMIT) undoStack.shift();
+    }
+    if(clearRedo) redoStack = [];
+  }
+  function restorePaint(url, done){
+    const img = new Image();
+    img.onload=()=>{ clearPaint(); pctx.drawImage(img,0,0,paintCanvas.width,paintCanvas.height); if(done) done(); };
+    img.src=url;
+  }
+  function restoreLine(url, done){
+    const img = new Image();
+    img.onload=()=>{ clearLine(); lctx.drawImage(img,0,0,lineCanvas.width,lineCanvas.height); if(done) done(); };
+    img.src=url;
+  }
+  function autosave(){
+    try {
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
+        paint: capturePaint(),
+        line: captureLine(),
+        sample: currentSample,
+        category: currentCategory,
+        savedAt: Date.now()
+      }));
+    } catch(e) {}
+  }
+  function clearAutosave(){
+    try { localStorage.removeItem(AUTOSAVE_KEY); } catch(e) {}
+  }
+  function restoreAutosave(showMessage = false){
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || "null"); } catch(e) {}
+    if(!saved || !saved.paint || !saved.line) return false;
+    if(saved.sample) currentSample = saved.sample;
+    if(saved.category) currentCategory = saved.category;
+    catChips.forEach(c=>c.classList.toggle("active", c.dataset.category === currentCategory));
+    setupSamples();
+    restoreLine(saved.line, () => { cleanLine = captureLine(); });
+    restorePaint(saved.paint, () => {
+      cleanPaint = blankPaintURL();
+      resetHistory();
+      if(showMessage) msg("Đã khôi phục tranh trước đó ✨");
+    });
+    return true;
+  }
 
   function getPos(e){
     const r = paintCanvas.getBoundingClientRect();
@@ -284,20 +348,83 @@ document.addEventListener("DOMContentLoaded", () => {
     pctx.beginPath(); pctx.moveTo(last.x,last.y); pctx.lineTo(p.x,p.y); pctx.stroke(); pctx.restore(); last=p;
   }
 
-  function start(e){ e.preventDefault(); drawing=true; last=getPos(e); pushUndo(); drawDot(last); beep("tap"); }
+  function drawSticker(p){
+    const size = Number(sizeRange.value) * (window.devicePixelRatio || 1) * 1.45;
+    pctx.save();
+    pctx.font = `${Math.max(18, size)}px "Apple Color Emoji","Segoe UI Emoji",sans-serif`;
+    pctx.textAlign = "center";
+    pctx.textBaseline = "middle";
+    pctx.fillText(selectedSticker, p.x, p.y);
+    pctx.restore();
+    popSparkle(p.x,p.y,"✨");
+  }
+
+  function placeSticker(p){
+    pushHistory();
+    drawSticker(p);
+    pushHistory();
+    autosave();
+    beep("sparkle");
+    msg("Đã dán sticker");
+  }
+
+  function start(e){
+    e.preventDefault();
+    last=getPos(e);
+    if(tool === "sticker") { placeSticker(last); return; }
+    drawing=true;
+    pushHistory();
+    drawDot(last);
+    beep("tap");
+  }
   function move(e){ if(!drawing) return; e.preventDefault(); drawStroke(getPos(e)); }
-  function end(e){ if(!drawing) return; if(e) e.preventDefault(); drawing=false; }
+  function end(e){
+    if(!drawing) return;
+    if(e) e.preventDefault();
+    drawing=false;
+    pushHistory();
+    autosave();
+  }
 
   paintCanvas.addEventListener("pointerdown", start, {passive:false});
   paintCanvas.addEventListener("pointermove", move, {passive:false});
   window.addEventListener("pointerup", end, {passive:false});
   window.addEventListener("pointercancel", end, {passive:false});
 
-  function updateToolButtons(){ Object.entries(toolButtons).forEach(([k,b]) => b.classList.toggle("active", tool===k)); }
-  Object.entries(toolButtons).forEach(([k,b]) => b.onclick = () => { tool=k; updateToolButtons(); beep("tap"); msg(k === "marker" ? "Đã chọn bút lông" : k === "crayon" ? "Đã chọn sáp màu" : k === "glitter" ? "Đã chọn kim tuyến" : k === "eraser" ? "Đã chọn gôm" : "Đã chọn cọ"); });
+  function updateToolButtons(){ Object.entries(toolButtons).forEach(([k,b]) => b && b.classList.toggle("active", tool===k)); }
+  Object.entries(toolButtons).forEach(([k,b]) => b.onclick = () => {
+    tool=k; updateToolButtons(); beep("tap");
+    msg(k === "marker" ? "Đã chọn bút lông" : k === "crayon" ? "Đã chọn sáp màu" : k === "glitter" ? "Đã chọn kim tuyến" : k === "eraser" ? "Đã chọn gôm" : k === "sticker" ? "Đã chọn sticker" : "Đã chọn cọ");
+  });
+  stickerChoices.forEach(b => b.onclick = () => {
+    selectedSticker = b.dataset.sticker;
+    stickerChoices.forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    tool = "sticker";
+    updateToolButtons();
+    beep("tap");
+    msg("Chạm vào tranh để dán sticker");
+  });
 
-  undoBtn.onclick=()=>{ if(undoStack.length<2) return; undoStack.pop(); restorePaint(undoStack[undoStack.length-1]); beep("tap"); };
-  resetBtn.onclick=()=>{ if(cleanPaint) restorePaint(cleanPaint); beep("tap"); msg("Đã xóa màu, giữ lại nét vẽ"); };
+  undoBtn.onclick=()=>{
+    if(undoStack.length<2) return;
+    redoStack.push(undoStack.pop());
+    restorePaint(undoStack[undoStack.length-1], autosave);
+    beep("tap");
+  };
+  redoBtn.onclick=()=>{
+    if(!redoStack.length) return;
+    const snap = redoStack.pop();
+    undoStack.push(snap);
+    restorePaint(snap, autosave);
+    beep("tap");
+  };
+  resetBtn.onclick=()=>{
+    if(!cleanPaint) return;
+    pushHistory();
+    restorePaint(cleanPaint, () => { pushHistory(); clearAutosave(); });
+    beep("tap"); msg("Đã xóa màu, giữ lại nét vẽ");
+  };
 
   function createLineArt(){
     if(!originalImage){ msg("Hãy upload ảnh trước"); return; }
@@ -317,7 +444,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const edge=Math.sqrt(gx*gx+gy*gy); const v=edge>threshold?15:255; const i=(y*w+x)*4;
       dst[i]=dst[i+1]=dst[i+2]=v; dst[i+3]=v===255?0:255;
     }
-    lctx.putImageData(out,0,0); saveClean(); undoStack=[paintCanvas.toDataURL("image/png")]; msg("Đã tạo nét chì từ ảnh upload."); beep("sparkle");
+    lctx.putImageData(out,0,0); saveClean(); resetHistory(); autosave(); msg("Đã tạo nét chì từ ảnh upload."); beep("sparkle");
   }
 
   imageInput.onchange=(e)=>{ const file=e.target.files && e.target.files[0]; if(!file) return; const img=new Image(); img.onload=()=>{originalImage=img;createLineArt();}; img.src=URL.createObjectURL(file); };
@@ -326,7 +453,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveImage(){
     const out=document.createElement("canvas"); out.width=paintCanvas.width; out.height=paintCanvas.height;
     const o=out.getContext("2d"); o.fillStyle="#fff"; o.fillRect(0,0,out.width,out.height); o.drawImage(paintCanvas,0,0); o.drawImage(lineCanvas,0,0);
-    const a=document.createElement("a"); a.download="be-to-mau-v4.png"; a.href=out.toDataURL("image/png"); a.click(); msg("Đã lưu ảnh PNG"); beep("success");
+    const a=document.createElement("a"); a.download="vinh-paint-artwork.png"; a.href=out.toDataURL("image/png"); a.click(); msg("Đã lưu ảnh PNG"); beep("success");
   }
   saveBtn.onclick=saveImage; partySaveBtn.onclick=saveImage; completeBtn.onclick=celebrate; completeBtn2.onclick=celebrate; partyCloseBtn.onclick=()=>celebration.classList.add("hidden");
 
